@@ -1,0 +1,35 @@
+import numpy as np
+
+def correctIQImbalance():
+    # Assuming DirectDownConversionDemo() is defined elsewhere and returns I_signal, Q_signal
+    I_signal, Q_signal = # signal with QEC error goes here
+    N = 100000  # parameter than can be changed
+
+    # Sample indices, from transmitter
+    n = np.arange(N)
+
+    # Step 2: Compute βI and βQ (DC offsets)
+    beta_I = np.mean(I_signal)
+    beta_Q = np.mean(Q_signal)
+
+    # Step 3: Remove the DC offsets
+    I_error = I_signal - beta_I
+    Q_error = Q_signal - beta_Q
+
+    # Step 4: Compute α (amplitude error)
+    alpha = np.sqrt(np.mean(I_error**2) / np.mean(Q_error**2))
+
+    # Step 5: Compute sin(ψ) (phase error)
+    psi = np.arcsin(np.mean(I_error * Q_error) / np.sqrt(np.mean(I_error**2) * np.mean(Q_error**2)))
+
+    # Step 7: Compute the correction matrix parameters
+    A = 1 / alpha
+    C = -np.sin(psi) / (alpha * np.cos(psi))
+    D = 1 / np.cos(psi)
+
+    # Step 8: Apply the correction
+    corrected_signal = np.zeros((2, N))
+    corrected_signal[0, :] = A * (I_signal - I_error)  # Corrected I, first row, second term goes to 0
+    corrected_signal[1, :] = C * (I_signal - I_error) + D * (Q_signal - Q_error)  # Corrected Q, second row
+
+    return corrected_signal
