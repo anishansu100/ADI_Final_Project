@@ -1,4 +1,4 @@
-function [y_new] = r_to_t_with_error(x_n, title, gq, theta_q)
+function [y_new] = r_to_t_with_error(x_n, title)
     % Define parameters
     Fs = 30.72e6; % Sampling frequency (e.g., 100 kHz
     f_tx = 2.005e9; % Transmission frequency 
@@ -7,7 +7,9 @@ function [y_new] = r_to_t_with_error(x_n, title, gq, theta_q)
     % Define the quadrature error parameters
     theta_obs = 0; % Observation phase example value (30 degrees converted to radians)
     g_obs = 1; % Gain for the observation channel (example value)
-
+    gq = 0.8;
+    theta_q = 15 *(pi/180);
+    
     % Calculate g1 and g2 
     g1 = (1/2) * (1 + gq * exp(1j*theta_q));
     g2 = (1/2) * (1 - gq * exp(1j*theta_q));

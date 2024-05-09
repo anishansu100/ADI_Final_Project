@@ -1,5 +1,6 @@
-function [corrected_signal] = correctIQImbalance(I_signal, Q_signal)
-    N = length(I_signal); % number of samples
+function [corrected_signal] = correctIQImbalance()
+    [I_signal, Q_signal] = DirectDownConversionDemo();
+    N = 1e5; % number of samples
     % sample indices, from transmitter
     n = (0:(N-1))';
     % Step 2: Compute βI and βQ (DC offsets)

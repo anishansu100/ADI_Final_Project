@@ -5,26 +5,19 @@ function [y_n, gq, theta_q] = correctIQ_imbalance_t(fname, plot_iq, simulation)
     g_obs = 1;
     theta_obs = 0;
 
-    if(simulation)
-       x_n = GenerateCalWaveform([]);
-    else
-        % Uncomment for the very first iteration to create a csv 
-        % x_n = GenerateCalWaveform("cal_waveform");
-        data_xn = csvread("cal_waveform.csv");
-        x_n1 = data_xn(:, 1);
-        x_n2 = data_xn(:, 2);
-        x_n = x_n1 + 1i * x_n2;
-    end
+   
+    % Uncomment for the very first iteration to create a csv 
+    % x_n = GenerateCalWaveform("cal_waveform");
+    data_xn = csvread("cal_waveform.csv");
+    x_n1 = data_xn(:, 1);
+    x_n2 = data_xn(:, 2);
+    x_n = x_n1 + 1i * x_n2;
 
-    if (simulation)
-        [y_n] = r_to_t_with_error(x_n, "Tx QEC Error", 0.8, 0); % Assuming this function returns x_n and y_n
-    else
-        data_yn = csvread(fname, 1, 0); % Assuming this function returns x_n and y_n
-        y_n1 = data_yn(:, 1);
-        y_n2 = data_yn(:, 2);
-        y_n = y_n1 + 1i * y_n2;
-    end
-    
+    data_yn = csvread(fname, 1, 0); % Assuming this function returns x_n and y_n
+    y_n1 = data_yn(:, 1);
+    y_n2 = data_yn(:, 2);
+    y_n = y_n1 + 1i * y_n2;
+
     y_aligned = Alignment(x_n, y_n, f_tx, f_rx, Fs);
 
     [a1, a2] = solve_for_a1_a2(x_n, y_aligned);
@@ -44,6 +37,9 @@ function [y_n, gq, theta_q] = correctIQ_imbalance_t(fname, plot_iq, simulation)
         g2 = (1/2) * (1 - gq * exp(1j*theta_q));
         % Calculate y[n] 
         y_new = (1/2) * g_obs * exp(1j*theta_obs) * (g1 * x_t + g2 * conj(x_t));
+        figure
+        PlotPsd(y_n, Fs);
+        figure
         PlotPsd(y_new,Fs); % Assume Fs is 100 kHz as an example
     end
 

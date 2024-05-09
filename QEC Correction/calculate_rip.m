@@ -28,11 +28,7 @@ function calculate_rip()
         end
         
         % Store the average RIP value in the map with the filename as the key
-        if avg_rip > 0
-            ripMap(files{i}) = 10*log10(avg_rip);
-        else 
-            ripMap(files{i}) = -70;
-        end
+        ripMap(files{i}) = 10*log10(avg_rip);
         
         % Optionally, display the average RIP value
         fprintf('Average RIP for %s: %f\n', files{i}, ripMap(files{i}));
