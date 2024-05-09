@@ -1,0 +1,113 @@
+function [y_n, gq, theta_q] = correctIQ_imbalance_t(fname, plot_iq, simulation)
+    Fs = 30.72e6; % Sampling frequency (e.g., 100 kHz
+    f_tx = 2.005e9; % Transmission frequency 
+    f_rx = 2e9; % Reception frequency 
+    g_obs = 1;
+    theta_obs = 0;
+
+    if(simulation)
+       x_n = GenerateCalWaveform([]);
+    else
+        % Uncomment for the very first iteration to create a csv 
+        % x_n = GenerateCalWaveform("cal_waveform");
+        data_xn = csvread("cal_waveform.csv");
+        x_n1 = data_xn(:, 1);
+        x_n2 = data_xn(:, 2);
+        x_n = x_n1 + 1i * x_n2;
+    end
+
+    if (simulation)
+        [y_n] = r_to_t_with_error(x_n, "Tx QEC Error", 0.8, 0); % Assuming this function returns x_n and y_n
+    else
+        data_yn = csvread(fname, 1, 0); % Assuming this function returns x_n and y_n
+        y_n1 = data_yn(:, 1);
+        y_n2 = data_yn(:, 2);
+        y_n = y_n1 + 1i * y_n2;
+    end
+    
+    y_aligned = Alignment(x_n, y_n, f_tx, f_rx, Fs);
+
+    [a1, a2] = solve_for_a1_a2(x_n, y_aligned);
+    complex_number = (a1 - a2)/(a1 + a2);
+    gq = abs(complex_number);
+    theta_q = angle(complex_number);
+    % Now calculate 'b' using the values of gq and theta_q
+    b = 1/(gq * cos(theta_q)) - 1j * tan(theta_q);
+
+    % Calculate the corrected x_t
+    x_t = 1/2 * (1 + b) * x_n + 1/2 * (1 - b) * conj(x_n); 
+    % Only uncomment if you need to save x_t
+    % csvwrite('xt.csv', [real(x_t(:)) imag(x_t(:))]);
+
+    if(simulation)
+        g1 = (1/2) * (1 + gq * exp(1j*theta_q));
+        g2 = (1/2) * (1 - gq * exp(1j*theta_q));
+        % Calculate y[n] 
+        y_new = (1/2) * g_obs * exp(1j*theta_obs) * (g1 * x_t + g2 * conj(x_t));
+        PlotPsd(y_new,Fs); % Assume Fs is 100 kHz as an example
+    end
+
+    if (plot_iq)
+        % Read from signal from predistoredrted signaldata = csvread('dummy.csv', 1, 0); % Assuming this function returns x_n and y_n
+        data_new = csvread('ynew.csv', 2, 0); % Assuming this function returns x_n and y_n
+        y_new1 = data_new(:, 1);
+        y_new2 = data_new(:, 2);
+        y_new = y_new1 + 1i * y_new2;
+
+        figure
+        PlotPsd(y_n, Fs);
+        figure
+        PlotPsd(y_new, Fs);
+    end
+end
+
+
+
+function [a1, a2] = solve_for_a1_a2(x_n, y_n)
+    % Compute the summation terms
+    S_xx_star = mean(x_n .* conj(x_n));
+    S_yx_star = mean(y_n .* conj(x_n));
+    S_yx = mean(y_n .* x_n);
+    S_xx = mean(x_n .* x_n);
+
+    % Form the matrix and vector for solving the linear equations
+    A = [S_xx_star, conj(S_xx); 
+         S_xx, S_xx_star];
+    b = [S_yx_star; S_yx];
+
+    % Solve for a1 and a2
+    a = A \ b; 
+    
+    % Extract a1 and a2 from the solution vector
+    a1 = a(1);
+    a2 = a(2);
+end
+
+function PlotPsd(x, fs)
+
+    if (nargin < 2)
+        fs = 1;
+    end
+    
+    [pxx, f] = GetPsd(x, fs);
+    
+    plot(f/1e6, 10*log10(pxx));
+    xlabel('Frequency (MHz)');
+    ylabel('PSD (dBFS/Hz)');
+    
+end
+
+function [pxx, f] = GetPsd(x, fs)
+
+    if (nargin < 2)
+        fs = 1;
+    end
+
+    N = 2^floor(log2(length(x)/16));
+    M = N/4;
+    L = N*4;
+    w = blackman(N);
+
+    [pxx, f] = pwelch(x, w, M, L, fs, 'centered');
+    
+end

@@ -1,9 +1,7 @@
-function [corrected_signal] = correctIQImbalance()
-    [I_signal, Q_signal] = DirectDownConversionDemo();
-    N = 1e5; % number of samples
+function [corrected_signal] = correctIQImbalance(I_signal, Q_signal)
+    N = length(I_signal); % number of samples
     % sample indices, from transmitter
     n = (0:(N-1))';
-
     % Step 2: Compute βI and βQ (DC offsets)
     beta_I = mean(I_signal);
     beta_Q = mean(Q_signal);
@@ -37,7 +35,7 @@ function [corrected_signal] = correctIQImbalance()
     D = 1 / cos(psi);
 
     % Step 8: Apply the correction
-    corrected_signal = zeros(2, N);
-    corrected_signal(1, :) = A * (I_signal - I_error);  % Corrected I, first row, second term goes to 0
-    corrected_signal(2, :) = C * (I_signal - I_error) + D * (Q_signal - Q_error);  % Corrected Q, second row
+    corrected_signal = zeros(N, 2);
+    corrected_signal(:, 1) = A * (I_signal - I_error);  % Corrected I, first row, second term goes to 0
+    corrected_signal(:, 2) = C * (I_signal - I_error) + D * (Q_signal - Q_error);  % Corrected Q, second row
 end

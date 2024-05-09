@@ -1,12 +1,10 @@
-function [y_new] = r_to_t_with_error(x_n)
+function [y_new] = r_to_t_with_error(x_n, title, gq, theta_q)
     % Define parameters
     Fs = 30.72e6; % Sampling frequency (e.g., 100 kHz
     f_tx = 2.005e9; % Transmission frequency 
     f_rx = 2e9; % Reception frequency 
 
     % Define the quadrature error parameters
-    gq = 0.8; % Amplitude imbalance example value
-    theta_q = 15 * pi/180; % Phase imbalance example value (15 degrees converted to radians)
     theta_obs = 0; % Observation phase example value (30 degrees converted to radians)
     g_obs = 1; % Gain for the observation channel (example value)
 
@@ -21,7 +19,7 @@ function [y_new] = r_to_t_with_error(x_n)
     y_n = y_n .* freq_shift;
     y_new = circshift(y_n, randi([0, length(y_n)-1], 1, 1));
     % Plot the spectrum of y[n]
-    plot_ft(y_new, 'Graph of y[n] with Quadrature Error', Fs);
+    plot_ft(y_new, title, Fs);
 end
 
 function plot_ft(x, titleStr, Fs)

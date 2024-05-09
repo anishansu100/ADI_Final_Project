@@ -1,4 +1,4 @@
- function [real_val, img_val] = DirectDownConversionDemo()
+ function [y_bb] = DirectDownConversionDemo()
     % Define parameters
     N = 1e5; % number of samples
     n = (0:N-1)'; % sample indices
@@ -29,8 +29,6 @@
 
     % Sample the filtered signal (ADC)
     y_adc = y_bb; % 
-    real_val = real(y_adc);
-    img_val = imag(y_adc);
     % Plot the spectrum of the baseband signal
     plot_ft(y_adc, 'Baseband Signal Spectrum with Quadrature Error');
 end
