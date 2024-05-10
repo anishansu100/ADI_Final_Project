@@ -1,4 +1,4 @@
-function ideal_reciever(x)
+function ideal_reciever()
     % % number of samples to generate
     N = 1e5;
     % 
@@ -6,14 +6,14 @@ function ideal_reciever(x)
     n = (0:(N-1))';
     % 
     % % signal x(t)
-    % f_x = 0.05;
+    f_x = 0.05;
     % % Define parameters for the bandpass signal
     f_c = 0.1; % Normalized carrier frequency (as a fraction of the sampling rate)
     phi_c = 0; % Carrier phase
     % 
     % % generate a complex exponential waveform
     % % x[n] = e^(j*w0*n) = e^(j*2*pi*f0*n)    
-    % x = exp(1i*2*pi*f_x*n);
+    x = exp(1i*2*pi*f_x*n);
     
     % multiply the signal we want to decode with e^(j*2*pi*f_c*n)  
     y = x .* exp(1i*(2*pi*f_c*n + phi_c)); 
@@ -39,7 +39,7 @@ function ideal_reciever(x)
     
    
 
-    plot_ft(Y_bb, "y_bb plot");
+    plot_ft(Y_bb, "Ideal Reciever with No Quadrature Error");
     % Plot the original and down-converted signal spectra
     % figure;
     % subplot(3,1,1);

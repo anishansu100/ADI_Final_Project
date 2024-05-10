@@ -1,15 +1,9 @@
 function correctIQ_imbalance_t()
     theta_obs = 0; % Observation phase example value (30 degrees converted to radians)
     g_obs = 1; % Gain for the observation channel (example value
-    Fs = 30.72e6; % Sampling frequency (e.g., 100 kHz
-    f_tx = 2.005e9; % Transmission frequency 
-    f_rx = 2e9; % Reception frequency 
-
 
     x_n = signal();
-    [y_n] = r_to_t_with_error(x_n, "TX QEC Error"); % Assuming this function returns x_n and y_n
-
-    y_aligned = Alignment(x_n, y_n, f_tx, f_rx, Fs);
+    [y_n] = r_to_t_with_error(x_n); % Assuming this function returns x_n and y_n
     [a1, a2] = solve_for_a1_a2(x_n, y_n);
     complex_number = (a1 - a2)/(a1 + a2);
     gq = abs(complex_number);

@@ -1,18 +1,14 @@
-function run_pluto_simulation()
-    
-    % set to 1 for simulation
-    if(0)
-       [y_n, gq, theta_q] = correctIQ_imbalance_t("dummy.csv", 0, 1);
-    else
-       [y_n, gq, theta_q] = correctIQ_imbalance_t("dummy.csv", 1, 0);
-    end
-   %% Trial of  RX qec correction
-   Fs = 30.72e6; % Sampling frequency (e.g., 100 kHz
-
-   [y_corrected] = correctIQImbalance(real(y_n), imag(y_n));
-   figure
-   PlotPsd(y_corrected, Fs);
+function plot_file(filename, name)
+    Fs = 30.72e6; % Sampling frequency (e.g., 100 kHz
+    data_xn = csvread(filename);
+    x_n1 = data_xn(:, 1);
+    x_n2 = data_xn(:, 2);
+    x_n = x_n1 + 1i * x_n2;
+    figure
+    PlotPsd(x_n, Fs);
+    title(name);
 end
+
 
 function PlotPsd(x, fs)
 

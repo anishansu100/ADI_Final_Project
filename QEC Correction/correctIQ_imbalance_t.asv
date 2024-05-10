@@ -31,6 +31,7 @@ function [y_new, gq, theta_q] = correctIQ_imbalance_t(fname, plot_iq, simulation
     x_t = 1/2 * (1 + b) * x_n + 1/2 * (1 - b) * conj(x_n); 
     % Only uncomment if you need to save x_t
     csvwrite('xt_2.csv', [real(x_t(:)) imag(x_t(:))]);
+    PlotPsd()
     if(simulation)
         g1 = (1/2) * (1 + gq * exp(1j*theta_q));
         g2 = (1/2) * (1 - gq * exp(1j*theta_q));
